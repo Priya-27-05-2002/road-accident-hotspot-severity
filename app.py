@@ -622,10 +622,10 @@ with tab_model:
             hide_index=True
         )
 
+  
         if "Model" in comparison.columns:
             selected = comparison[
-                comparison["Model"]
-                == "Class-Weighted Random Forest"
+                comparison["Model"] == "Class-Weighted Random Forest"
             ]
 
             if not selected.empty:
@@ -633,23 +633,40 @@ with tab_model:
 
                 col1, col2, col3 = st.columns(3)
 
-                if "Accuracy" in comparison.columns:
-                    col1.metric(
-                        "Accuracy",
-                        f"{row['Accuracy']:.4f}"
-                    )
+                metric_items = [
+                    ("Accuracy", row.get("Accuracy")),
+                    ("Macro F1", row.get("Macro F1")),
+                    ("Weighted F1", row.get("Weighted F1"))
+                ]
 
-                if "Macro F1" in comparison.columns:
-                    col2.metric(
-                        "Macro F1",
-                        f"{row['Macro F1']:.4f}"
-                    )
+                for col, (label, value) in zip(
+                    [col1, col2, col3], metric_items
+                ):
+                    with col:
+                        if pd.notna(value):
+                            display_value = f"{float(value):.4f}"
+                        else:
+                            display_value = "N/A"
 
-                if "Weighted F1" in comparison.columns:
-                    col3.metric(
-                        "Weighted F1",
-                        f"{row['Weighted F1']:.4f}"
-                    )
+                        st.markdown(
+                            f"""
+                            <div class="custom-metric">
+                                <div class="custom-metric-label">
+                                    {label}
+                                </div>
+                                <div class="custom-metric-value">
+                                    {display_value}
+                                </div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+            else:
+                st.info(
+                    "Class-Weighted Random Forest was not found "
+                    "in the model comparison table."
+                )
+
     else:
         st.info(
             "Model comparison file not found: "
