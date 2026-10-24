@@ -25,7 +25,7 @@ st.markdown("""
     padding-bottom: 2rem;
 }
 
-/* Project overview metric cards */
+/* Metric card background and border */
 div[data-testid="stMetric"] {
     background-color: #EAF2F8 !important;
     border: 1px solid #C8D9E8 !important;
@@ -33,25 +33,28 @@ div[data-testid="stMetric"] {
     border-radius: 12px !important;
 }
 
-/* Metric labels */
+/* Make the headings inside metric boxes visible */
 div[data-testid="stMetricLabel"],
+div[data-testid="stMetricLabel"] *,
 div[data-testid="stMetricLabel"] p,
 div[data-testid="stMetricLabel"] label {
-    color: #34495E !important;
-    font-weight: 600 !important;
+    color: #172B4D !important;
+    -webkit-text-fill-color: #172B4D !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
 }
 
-/* Metric values/numbers */
+/* Keep the numbers visible */
 div[data-testid="stMetricValue"],
-div[data-testid="stMetricValue"] div,
-div[data-testid="stMetricValue"] > div {
+div[data-testid="stMetricValue"] *,
+div[data-testid="stMetricValue"] div {
     color: #12304A !important;
+    -webkit-text-fill-color: #12304A !important;
     font-weight: 800 !important;
-}
-
-/* Metric delta text, if displayed */
-div[data-testid="stMetricDelta"] {
-    color: #12304A !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 </style>
 """, unsafe_allow_html=True)
