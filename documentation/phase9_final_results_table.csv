@@ -1,0 +1,16 @@
+Measure,Result
+Study period,2021–2025
+Study area,Great Britain
+Original accident records,513801
+Records inside GB boundary,513252
+Baseline grid size,5 km × 5 km
+Occupied baseline grid cells,7615
+High-count grid-year records,1566
+Persistent high-count cells,257
+Emerging cells (2021–2025),34
+Declining cells (2021–2025),27
+Severity model test period,2025
+Baseline model macro F1,0.2841
+Weighted model macro F1,0.3277
+Baseline model accuracy,0.7376
+Weighted model accuracy,0.467

@@ -1,0 +1,111 @@
+PHASE 6 — FINAL SEVERITY MODEL REPORT
+=====================================
+
+Project:
+Spatiotemporal Hotspot Mining and Severity Prediction of Road Accidents
+using Apache Sedona and Spark MLlib
+
+Selected model:
+Class-Weighted Random Forest Classifier (Apache Spark MLlib)
+
+Reason for selection:
+The class-weighted Random Forest achieved the highest macro F1 among
+the four models evaluated. It also detected Fatal and Serious accidents,
+unlike the standard Random Forest, which predicted every test record
+as Slight severity.
+
+DATA SPLIT
+----------
+Training period: 2021–2024
+Training records: 412,276
+Test period: 2025
+Test records: 101,525
+
+MODEL CONFIGURATION
+-------------------
+Algorithm: RandomForestClassifier
+Number of trees: 100
+Maximum tree depth: 10
+Maximum bins: 64
+Random seed: 42
+Training class weights:
+Fatal: 22.5287
+Serious: 1.4999
+Slight: 0.4369
+
+CLASS-WEIGHTED RANDOM FOREST — TEST RESULTS
+-------------------------------------------
+Accuracy: 0.5055
+Weighted precision: 0.6552
+Weighted recall: 0.5055
+Weighted F1: 0.5659
+Macro F1: 0.3371
+
+Class-wise performance:
+Fatal recall: 0.5877
+Serious recall: 0.2485
+Slight recall: 0.5904
+
+MODEL COMPARISON
+----------------
+                             Model  Accuracy  Weighted F1  Macro F1  Fatal Recall  Serious Recall  Slight Recall
+               Logistic Regression  0.737600     0.627000  0.284100        0.0000          0.0017         0.9995
+Class-Weighted Logistic Regression  0.467000     0.536500  0.327700        0.6146          0.2968         0.5215
+            Standard Random Forest  0.737562     0.626162  0.282987        0.0000          0.0000         1.0000
+      Class-Weighted Random Forest  0.505521     0.565864  0.337132        0.5877          0.2485         0.5904
+
+REPRODUCIBILITY
+---------------
+Saved model path:
+/jupyter/sods.capstone25/road_accident_project/models/weighted_random_forest
+
+Reloaded model type:
+RandomForestClassificationModel
+
+Number of trees after reload:
+100
+
+Original predictions: 101525
+Reloaded predictions: 101525
+Original-only label/prediction pairs: 0
+Reloaded-only label/prediction pairs: 0
+
+Prediction consistency: PASS
+
+LIMITATIONS AND INTERPRETATION
+------------------------------
+1. The dataset is strongly imbalanced, with Slight accidents forming
+   the majority class.
+
+2. The selected model has the highest macro F1 among the four models
+   tested, but its advantage over class-weighted Logistic Regression
+   is modest.
+
+3. Class-weighted Logistic Regression has higher Fatal recall
+   (0.6146) and Serious recall (0.2968) than the selected Random Forest
+   (0.5877 and 0.2485 respectively).
+
+4. Fatal precision for the selected model is low. Many records
+   predicted as Fatal are not Fatal in the recorded labels.
+
+5. The model predicts recorded collision severity from the available
+   features. These results do not establish causality or guarantee
+   accurate real-world prediction.
+
+6. Evaluation uses a chronological 2025 test set. Changes in reporting,
+   coding, data quality, and road conditions may affect generalisation.
+
+7. The selected model is the best by macro F1 among the four models
+   tested on this split; it is not proof that Random Forest is
+   universally superior. Further tuning and validation may change
+   the ranking.
+
+FINAL DECISION
+--------------
+Use the class-weighted Random Forest as the main model to align with
+the base-paper approach. Retain class-weighted Logistic Regression
+as a benchmark and report both models' class-wise results.
+
+The hotspot screening and spatial analysis are separate components.
+High-count grid cells should not be described as statistically
+validated hotspots unless a formal statistical hotspot test is applied.

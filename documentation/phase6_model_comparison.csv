@@ -1,0 +1,5 @@
+Model,Accuracy,Weighted F1,Macro F1,Fatal Recall,Serious Recall,Slight Recall
+Logistic Regression,0.7376,0.627,0.2841,0.0,0.0017,0.9995
+Class-Weighted Logistic Regression,0.467,0.5365,0.3277,0.6146,0.2968,0.5215
+Standard Random Forest,0.7375621768037429,0.6261623001625917,0.28298735114829804,0.0,0.0,1.0
+Class-Weighted Random Forest,0.5055208076828367,0.5658644399028845,0.33713234254967617,0.5877,0.2485,0.5904

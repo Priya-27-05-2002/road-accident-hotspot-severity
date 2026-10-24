@@ -1,0 +1,209 @@
+SPATIOTEMPORAL HOTSPOT MINING AND SEVERITY PREDICTION OF ROAD ACCIDENTS
+USING APACHE SEDONA AND SPARK MLLIB
+
+PHASE 9.5 — RESULTS, DISCUSSION AND LIMITATIONS
+
+1. PROJECT OVERVIEW
+-------------------
+This project analyses road traffic collisions in Great Britain using
+distributed data processing, spatial analysis, temporal summaries,
+machine learning and association-rule mining.
+
+The dataset contains 513,801 collision records from 2021–2025.
+The work uses Apache Spark and Apache Sedona for data processing and
+spatial operations, alongside Python libraries for analysis and plots.
+
+2. DATA PREPARATION AND SPATIAL COVERAGE
+----------------------------------------
+The original dataset contains 513,801 records. Of these, 513,748 records
+have valid coordinate pairs for spatial processing.
+
+The Great Britain boundary filter retained 513,252 records and identified
+496 records outside the boundary. A subsequent spatial join matched
+513,250 records to a historic local-authority boundary; 498 records were
+unmatched in that join. These counts describe different processing stages
+and should not be treated as interchangeable.
+
+The spatial join supports local-authority summaries. It does not represent
+road-segment analysis because no road-network segmentation was performed.
+
+3. TEMPORAL RESULTS
+-------------------
+The original dataset contains the following annual collision counts:
+
+2021: 101,087
+2022: 106,004
+2023: 104,258
+2024: 100,927
+2025: 101,525
+
+The highest annual count in this period was in 2022. Counts decreased in
+2023 and 2024, then rose slightly in 2025. These are observed dataset
+counts, not exposure-adjusted road-safety rates. Differences in traffic
+volume, travel distance, reporting and data completeness are not controlled
+for in this simple comparison.
+
+4. SPATIAL GRID AND HIGH-COUNT SCREENING
+----------------------------------------
+A 5 km grid was used as the baseline spatial aggregation unit. The saved
+all-years grid contains 7,615 occupied cells.
+
+The Phase 5 year-specific grid output contains 30,552 grid-year records
+and sums to 513,252 collision records. A high-count screening threshold
+of 64 was used, based on the 95th percentile of grid-year counts.
+The screening output contains 1,566 high-count grid-year records.
+
+These cells identify locations with comparatively high observed counts
+under the selected grid size and threshold. They are screening candidates,
+not statistically confirmed hotspots. Counts can be influenced by cell
+size, population, road density, traffic exposure and urban concentration.
+
+5. TEMPORAL HOTSPOT CATEGORIES
+------------------------------
+The saved temporal classification contains 7,615 occupied grid cells:
+
+Never high-count: 7,229
+Persistent:         257
+Variable:            68
+Emerging:            34
+Declining:           27
+
+Persistent cells repeatedly met the selected high-count screening rule
+across the analysed years. Emerging and declining categories describe
+changes under that rule; they do not establish the causes of those changes.
+These labels should be interpreted in relation to the selected grid size,
+threshold and study period.
+
+Sensitivity outputs were also generated for 2 km and 10 km grids. Grid
+resolution can change cell counts and hotspot patterns, so conclusions
+should not be assumed to remain identical across resolutions.
+
+6. SEVERITY CLASSIFICATION
+--------------------------
+Severity was encoded as:
+0 = Fatal
+1 = Serious
+2 = Slight
+
+The model used a time-based split: 2021–2024 for training
+(412,276 records) and 2025 for testing (101,525 records).
+The feature matrix contained 134 features.
+
+Baseline Logistic Regression:
+Accuracy: 0.7376
+Macro F1: 0.2841
+Weighted F1: 0.6270
+
+Class-weighted Logistic Regression:
+Accuracy: 0.4670
+Macro F1: 0.3277
+Weighted F1: 0.5365
+
+The class-weighted model improved macro F1 from 0.2841 to 0.3277,
+a relative increase of approximately 15.3%, but its overall accuracy
+decreased. This illustrates the trade-off between overall accuracy and
+performance across imbalanced classes.
+
+The baseline model performed poorly on minority severity classes.
+Class weighting improved fatal-class recall to approximately 0.6146,
+but fatal-class precision was approximately 0.0350. Therefore, many
+predictions labelled fatal were incorrect. This model should not be used
+as a standalone operational road-safety decision system.
+
+The 2025 time-based test is useful for evaluating performance on a later
+year, but changes in reporting practices, coding and data distributions
+may affect the results.
+
+7. ASSOCIATION-RULE MINING
+--------------------------
+FP-Growth was applied to 513,801 transactions containing 10 categorical
+items per transaction. With minimum support of 0.01 and minimum confidence
+of 0.30, the analysis generated 16,304 frequent itemsets and 68,745 rules.
+Filtering for rules with a severity consequent retained 3,205 rules.
+
+No qualifying fatal-consequent rules were found at the selected minimum
+support threshold. This does not mean that fatal collisions have no
+associations; the support requirement can exclude patterns that are
+uncommon in the full dataset.
+
+Serious-consequent rules included a maximum confidence of approximately
+0.3182 and maximum lift of approximately 1.3994. Slight-consequent rules
+included a maximum confidence of approximately 0.9636 and maximum lift
+of approximately 1.2713.
+
+Association rules describe co-occurrence under the selected encoding and
+thresholds. They do not establish causation or prove that an antecedent
+factor caused a collision or its severity. Rules involving special or
+unknown category codes require particular caution.
+
+Changes in some categorical-code distributions, especially in recent
+years, may reflect changes in reporting specifications or coding practice.
+They should be investigated against official documentation before being
+interpreted as real changes in road conditions or collision behaviour.
+
+8. SPARK PERFORMANCE BENCHMARK
+------------------------------
+The benchmark compared Spark aggregation with local Python/pandas
+aggregation for a 5 km grid-year aggregation task.
+
+Three measured repetitions produced these runtimes:
+
+Spark: 0.253, 0.239, 0.212 seconds
+Local Python/pandas: 0.0314, 0.0263, 0.0296 seconds
+
+Median runtime:
+Spark: approximately 0.2391 seconds
+Local Python/pandas: approximately 0.0296 seconds
+
+The observed median ratio was approximately 8.07x, with local processing
+faster in this particular experiment.
+
+This result does not prove that local processing is generally superior.
+The benchmark used one dataset size, in-memory inputs and a local Spark
+configuration. The timed work was not perfectly equivalent: Spark derived
+grid keys during its timed run, whereas the local method used pre-derived
+keys. Results should therefore be presented as a limited benchmark, not a
+general scalability conclusion. Larger datasets, repeated trials and
+carefully matched operations would be needed for stronger conclusions.
+
+9. MAIN LIMITATIONS
+-------------------
+1. Collision counts are not adjusted for traffic volume, vehicle kilometres,
+   road usage or population exposure.
+2. High-count grid cells are screening results rather than statistically
+   validated hotspots.
+3. Grid resolution and threshold choices influence the spatial pattern.
+4. The analysis does not model individual road segments or network effects.
+5. Severity classes are imbalanced, and fatal-class predictions have low
+   precision in the class-weighted model.
+6. Association rules are descriptive and do not establish causation.
+7. Changes in coding or reporting may affect comparisons between years.
+8. Spatial coverage depends on coordinate availability and boundary matching.
+9. The performance benchmark is limited to one dataset and one local setup.
+10. Model performance may change when applied to future years or another area.
+
+10. FUTURE IMPROVEMENTS
+-----------------------
+Future work could include exposure-adjusted collision rates, statistical
+hotspot tests, road-network segmentation, spatial-temporal models,
+additional validation across years, calibration and threshold analysis
+for severity predictions, and external validation in another study area.
+
+The benchmark could be strengthened using larger datasets, matched
+operations, additional repetitions and distributed computing resources.
+Potential coding changes should be checked against official source
+documentation before interpreting temporal patterns.
+
+11. CONCLUSION
+-------------
+The project demonstrates a reproducible workflow for processing collision
+records, creating spatial summaries, screening high-count grid cells,
+examining temporal patterns, predicting severity and mining associations.
+
+The results identify areas and patterns worth further investigation, but
+they should be interpreted in light of exposure, grid sensitivity,
+class imbalance, coding changes and benchmark limitations. The outputs
+are suitable for exploratory analysis and research, not as direct proof
+of causation or as a replacement for formal road-safety assessment.
+
+END OF REPORT

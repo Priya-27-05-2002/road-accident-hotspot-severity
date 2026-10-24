@@ -1,0 +1,190 @@
+PROJECT METHODOLOGY AND REPRODUCIBILITY NOTES
+============================================================
+
+Project title
+-------------
+Spatiotemporal Hotspot Mining and Severity Prediction of Road
+Accidents using Apache Sedona and Spark MLlib
+
+Generated: 2026-10-23 22:23:29
+
+1. STUDY AREA AND STUDY PERIOD
+------------------------------
+Study area: Great Britain
+Study period: 2021–2025
+Spatial reference system for grid analysis: EPSG:27700
+Baseline grid size: 5 km × 5 km
+
+The Great Britain boundary was sourced from the Office for National
+Statistics Local Authority District boundaries (May 2026) and stored
+in the project as a GeoJSON file. The boundary was validated and
+transformed to EPSG:27700 for projected spatial analysis.
+
+2. DATA SOURCE AND PREPARATION
+------------------------------
+The collision dataset is the UK Department for Transport STATS19
+road-safety collision dataset covering 2021–2025. The original
+dataset contains 513,801 records.
+
+Records with valid coordinate pairs were processed using Apache
+Sedona spatial functionality. A spatial filter against the Great
+Britain boundary retained 513,252 collision records for the main
+spatial analysis. Records outside the boundary and records with
+missing coordinates were handled separately.
+
+The spatial join associated collision points with historic local
+authority boundaries. The project recorded 513,250 matched records
+and 498 unmatched records in the authority join. These counts refer
+to different processing stages and should not be added together
+without accounting for the missing-coordinate and boundary filters.
+
+3. SPATIOTEMPORAL ANALYSIS
+--------------------------
+Annual, monthly, hourly, and severity distributions were examined.
+
+For grid-based analysis, collision coordinates were projected to
+EPSG:27700 and aggregated into 5 km × 5 km grid cells. The baseline
+screening rule used the 95th percentile of occupied grid-year
+accident counts, corresponding to a count threshold of 64.
+
+The baseline analysis contained 7,615 occupied grid cells and 1,566
+high-count grid-year records. Temporal categories were assigned by
+comparing screening results across 2021–2025.
+
+Category totals:
+- Never high-count: 7,229 cells
+- Persistent: 257 cells
+- Variable: 68 cells
+- Emerging: 34 cells
+- Declining: 27 cells
+
+Sensitivity analyses compared grid sizes of 2 km, 5 km, and 10 km
+and count thresholds at the 85th, 90th, and 95th percentiles.
+
+A high-count cell is a screening result. It is not, by itself, proof
+of statistical significance or elevated crash risk. Traffic volume
+or another exposure measure would be required for risk estimation.
+
+4. SEVERITY CLASSIFICATION
+--------------------------
+The target classes were encoded as:
+- 0 = Fatal
+- 1 = Serious
+- 2 = Slight
+
+A temporal split was used:
+- Training period: 2021–2024
+- Test period: 2025
+
+The test set contained 101,525 records and was not used to fit
+preprocessing, model parameters, or class weights.
+
+Multinomial Logistic Regression was evaluated as a baseline and
+with class weighting to address severity-class imbalance.
+
+Baseline metrics:
+- Accuracy: 0.7376
+- Weighted F1: 0.6270
+- Macro F1: 0.2841
+
+Class-weighted metrics:
+- Accuracy: 0.4670
+- Weighted F1: 0.5365
+- Macro F1: 0.3277
+
+Class weighting improved macro F1 and recall for the Fatal and
+Serious classes, but reduced overall accuracy and Slight recall.
+Fatal precision remained low. The model is an experimental
+classification study, not a validated operational safety tool.
+
+The predictors may include circumstances recorded at or after a
+collision. Therefore, this setup must not be described as validated
+pre-crash prediction.
+
+5. ASSOCIATION RULE MINING
+--------------------------
+Categorical collision attributes were converted into transactions
+and analysed with Spark FP-Growth.
+
+Minimum support: 0.01
+Minimum confidence: 0.30
+Severity-filtered rules: 3,205
+
+No qualifying Fatal-consequent rules were found under the selected
+support threshold. This does not establish that Fatal collisions
+have no associated patterns; rare-class frequency and parameter
+choices constrain which rules can be returned.
+
+Association rules describe co-occurrence in the records and do not
+establish causality or prove predictive value.
+
+6. PERFORMANCE BENCHMARK
+------------------------
+Spatial grid aggregation was compared between Spark and a local
+Python/pandas implementation using 513,748 spatial records.
+
+Grid size: 5,000 metres
+Spark configuration: local[2]
+Spark shuffle partitions: 8
+Measured repetitions: 3
+
+Median runtime:
+- Spark: 0.2391 seconds
+- Local Python/pandas: 0.0296 seconds
+- Observed runtime ratio: approximately 8.07×
+
+These are results for the measured environment and dataset only.
+The comparison used in-memory inputs, a single dataset size, and
+slightly different timed processing steps. It does not establish
+that one approach will be faster at larger scales.
+
+7. SOFTWARE ENVIRONMENT
+-----------------------
+Python: 3.9.16
+Operating system: Linux-5.4.0-169-generic-x86_64-with-glibc2.31
+PySpark: 3.5.3
+Apache Sedona: 1.7.1
+pandas: 2.3.3
+scikit-learn: 1.6.1
+PyArrow: 21.0.0
+Plotly: 7.1.0
+
+Java version and Spark configuration should also be recorded from
+the active notebook environment when preparing the final submission.
+
+8. REPRODUCIBILITY AND OUTPUTS
+------------------------------
+Project root:
+/jupyter/sods.capstone25/road_accident_project
+
+Important output locations:
+- data/processed/ : cleaned data and analytical tables
+- outputs/figures/ : maps, charts, and dashboard-related figures
+- documentation/ : reports, evaluation notes, and result tables
+
+Key reports include:
+- phase5_consolidated_analysis_summary.txt
+- phase6_severity_model_evaluation.txt
+- phase7_association_rules_validation.txt
+- phase8_final_report.txt
+- phase9_final_results_table.csv
+- phase9_class_wise_recall.csv
+
+For reproducibility, retain the notebook, original data source
+references, environment details, configuration values, and generated
+outputs. Record any differences that arise when rerunning the
+workflow rather than silently replacing previous results.
+
+9. LIMITATIONS
+--------------
+- Collision counts do not measure risk without exposure data.
+- The grid and threshold choices influence hotspot classifications.
+- High-count screening does not demonstrate statistical significance.
+- No road-segment network analysis was performed.
+- Changes in reporting or coding across years may affect comparisons.
+- The severity model has imbalanced class performance and low Fatal
+  precision.
+- The classification experiment is not causal and is not validated
+  for operational deployment.
+
+End of draft.
