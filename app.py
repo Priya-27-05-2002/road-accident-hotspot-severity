@@ -17,17 +17,45 @@ DATA = ROOT / "data" / "processed"
 FIGURES = ROOT / "outputs" / "figures"
 DOCS = ROOT / "documentation"
 
+
 st.markdown("""
 <style>
-.block-container {padding-top: 1.5rem; padding-bottom: 2rem;}
-[data-testid="stMetric"] {
-    background: #f2f6fa;
-    border: 1px solid #dce5ed;
-    padding: 14px;
-    border-radius: 10px;
+.block-container {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+/* Project overview metric cards */
+div[data-testid="stMetric"] {
+    background-color: #EAF2F8 !important;
+    border: 1px solid #C8D9E8 !important;
+    padding: 18px 16px !important;
+    border-radius: 12px !important;
+}
+
+/* Metric labels */
+div[data-testid="stMetricLabel"],
+div[data-testid="stMetricLabel"] p,
+div[data-testid="stMetricLabel"] label {
+    color: #34495E !important;
+    font-weight: 600 !important;
+}
+
+/* Metric values/numbers */
+div[data-testid="stMetricValue"],
+div[data-testid="stMetricValue"] div,
+div[data-testid="stMetricValue"] > div {
+    color: #12304A !important;
+    font-weight: 800 !important;
+}
+
+/* Metric delta text, if displayed */
+div[data-testid="stMetricDelta"] {
+    color: #12304A !important;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 st.title("🚦 Great Britain Road Accident Explorer")
 st.caption(
