@@ -283,7 +283,29 @@ with tab_time:
                 pd.to_numeric(grid_year["year"], errors="coerce")
                 == selected_year
             ]
-            st.metric("Grid-year records", f"{len(filtered):,}")
+            st.markdown("""
+<style>
+/* Grid-year records metric label */
+div[data-testid="stMetricLabel"],
+div[data-testid="stMetricLabel"] p {
+    color: #12304A !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+/* Grid-year records metric value */
+div[data-testid="stMetricValue"],
+div[data-testid="stMetricValue"] div {
+    color: #12304A !important;
+    font-size: 30px !important;
+    font-weight: 800 !important;
+    opacity: 1 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.metric("Grid-year records", f"{len(filtered):,}")
             st.dataframe(filtered.head(100), use_container_width=True)
             st.caption("Showing at most 100 rows of the selected year's grid data.")
 
