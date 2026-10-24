@@ -141,11 +141,50 @@ if not results.empty and {"metric", "value"}.issubset(results.columns):
     # Display the project-wide validated metrics above. Avoid depending
     # on inconsistent result-table labels.
 
+
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Collisions inside GB", f"{total_inside:,}")
-c2.metric("Occupied 5 km grid cells", f"{occupied_cells:,}")
-c3.metric("High-count grid-year records", f"{high_count_records:,}")
-c4.metric("Persistent cells", f"{persistent_cells:,}")
+
+metric_cards = [
+    ("Collisions inside GB", f"{total_inside:,}"),
+    ("Occupied 5 km grid cells", f"{occupied_cells:,}"),
+    ("High-count grid-year records", f"{high_count_records:,}"),
+    ("Persistent cells", f"{persistent_cells:,}"),
+]
+
+for col, (heading, number) in zip([c1, c2, c3, c4], metric_cards):
+    with col:
+        st.markdown(
+            f"""
+            <div style="
+                background-color: #EAF2F8;
+                border: 1px solid #C8D9E8;
+                border-radius: 12px;
+                padding: 18px 14px;
+                min-height: 115px;
+                box-sizing: border-box;
+            ">
+                <div style="
+                    color: #172B4D;
+                    font-size: 14px;
+                    font-weight: 700;
+                    line-height: 1.5;
+                    visibility: visible;
+                    opacity: 1;
+                    margin-bottom: 10px;
+                ">{heading}</div>
+                <div style="
+                    color: #12304A;
+                    font-size: 28px;
+                    font-weight: 800;
+                    line-height: 1.3;
+                    visibility: visible;
+                    opacity: 1;
+                ">{number}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
 
 st.caption(
     "Project-wide summary counts. Counts refer to different processing "
